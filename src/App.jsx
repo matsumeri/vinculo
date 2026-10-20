@@ -34,7 +34,7 @@ const products = [
     type: 'Aros',
     price: '$ 32.000',
     image:
-      'https://images.unsplash.com/photo-1635767798638-3665a54c8c11?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=85',
     alt: 'Aros artesanales de cobre de líneas delicadas',
     note: 'Una pausa suave, cerca de ti.',
   },

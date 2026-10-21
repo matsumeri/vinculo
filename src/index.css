@@ -8,8 +8,8 @@
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   font-weight: 400;
-  --copper: #b8734e;
-  --copper-deep: #9c5f40;
+  --copper: #995332;
+  --copper-deep: #7e442b;
   --charcoal: #302721;
   --cream: #f7f2ec;
   --linen: #eee6dc;
@@ -24,7 +24,7 @@
 html {
   min-width: 320px;
   scroll-behavior: smooth;
-  scroll-padding-top: 92px;
+  scroll-padding-top: 24px;
 }
 
 body {
@@ -35,6 +35,25 @@ body {
 button,
 input {
   font: inherit;
+}
+
+summary {
+  cursor: pointer;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  padding: 12px 18px;
+  color: white;
+  background: var(--charcoal);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
 }
 
 a {

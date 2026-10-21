@@ -1,41 +1,47 @@
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
 import './App.css'
+
+const contactEmail = 'hola@vinculo.com'
 
 const products = [
   {
+    id: 'anillo-presencia',
     name: 'Anillo Presencia',
     type: 'Anillos',
     price: '$ 28.000',
     image:
-      'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=85',
-    alt: 'Anillo artesanal de cobre con acabado cálido',
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=85',
+    alt: 'Fotografía referencial de un anillo sobre fondo oscuro',
     note: 'Un pequeño recordatorio de volver al presente.',
   },
   {
+    id: 'pulsera-raiz',
     name: 'Pulsera Raíz',
     type: 'Pulseras',
     price: '$ 36.000',
     image:
-      'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=85',
-    alt: 'Pulsera de cobre minimalista sobre fondo natural',
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=85',
+    alt: 'Fotografía referencial de una pulsera sobre fondo rosado',
     note: 'Lleva contigo lo que te hace sentir en casa.',
   },
   {
+    id: 'colgante-esencia',
     name: 'Colgante Esencia',
     type: 'Colgantes',
     price: '$ 42.000',
     image:
-      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=85',
-    alt: 'Colgante artesanal de metal con diseño orgánico',
+      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=85',
+    alt: 'Fotografía referencial de colgantes en tonos dorados',
     note: 'Un gesto cotidiano para honrar tu propia esencia.',
   },
   {
+    id: 'aros-calma',
     name: 'Aros Calma',
     type: 'Aros',
     price: '$ 32.000',
     image:
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=85',
-    alt: 'Aros artesanales de cobre de líneas delicadas',
+    alt: 'Fotografía referencial de aros con piedras azules sobre una hoja',
     note: 'Una pausa suave, cerca de ti.',
   },
 ]
@@ -66,16 +72,78 @@ function ArrowIcon() {
   )
 }
 
-function App() {
-  const [subscribed, setSubscribed] = useState(false)
+function ProductCard({ product, index }) {
+  const subject = encodeURIComponent(`Consulta por ${product.name}`)
+  const body = encodeURIComponent(
+    `Hola, me interesa ${product.name} (${product.price}, precio publicado). Quisiera confirmar disponibilidad, precio y moneda, medidas, material, cuidados y opciones de envío. ¡Gracias!`,
+  )
 
-  function handleSubscribe(event) {
-    event.preventDefault()
-    setSubscribed(true)
-  }
+  return (
+    <article className="product-card" id={product.id}>
+      <details className="product-details">
+        <summary>
+          <span className="product-image">
+            <img src={product.image} alt={product.alt} loading="lazy" width="900" height="1200" />
+            <span className="product-index" aria-hidden="true">0{index + 1}</span>
+            <span className="product-meaning">{product.note}</span>
+            <span className="product-arrow"><ArrowIcon /></span>
+          </span>
+          <span className="product-info">
+            <span><span className="product-type">{product.type}</span><span className="product-name">{product.name}</span></span>
+            <span className="product-price">{product.price}</span>
+          </span>
+          <span className="product-detail-label">Detalles y consulta <span aria-hidden="true">+</span></span>
+        </summary>
+        <div className="product-description">
+          <h3>{product.name}</h3>
+          <p>{product.note}</p>
+          <p>Consulta disponibilidad, medidas, material, cuidados y envío antes de elegir. El precio y la moneda se confirman por correo.</p>
+          <p className="photo-disclaimer">Foto referencial: no representa la pieza final ni acredita su material.</p>
+          <a className="button button-dark" href={`mailto:${contactEmail}?subject=${subject}&body=${body}`} aria-label={`Consultar por ${product.name} por correo`}>
+            Consultar por correo <ArrowIcon />
+          </a>
+          <p className="email-help">Se abrirá tu aplicación de correo. También puedes escribir a <a href={`mailto:${contactEmail}`}>{contactEmail}</a> indicando esta pieza.</p>
+        </div>
+      </details>
+    </article>
+  )
+}
+
+function App() {
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    const menu = menuRef.current
+    const desktop = window.matchMedia('(min-width: 901px)')
+
+    function closeOnOutsideClick(event) {
+      if (!menu.contains(event.target)) menu.open = false
+    }
+
+    function closeOnEscape(event) {
+      if (event.key === 'Escape' && menu.open) {
+        menu.open = false
+        menu.querySelector('summary').focus()
+      }
+    }
+
+    function closeOnDesktop(event) {
+      if (event.matches) menu.open = false
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    document.addEventListener('keydown', closeOnEscape)
+    desktop.addEventListener('change', closeOnDesktop)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      document.removeEventListener('keydown', closeOnEscape)
+      desktop.removeEventListener('change', closeOnDesktop)
+    }
+  }, [])
 
   return (
     <>
+      <a className="skip-link" href="#contenido">Saltar al contenido</a>
       <div className="announcement">
         <span>Un recordatorio para volver a ti.</span>
         <a href="#manifiesto">Conoce nuestra intención <ArrowIcon /></a>
@@ -91,28 +159,30 @@ function App() {
           <a href="#manifiesto">Nuestra esencia</a>
           <a href="#cobre">El cobre</a>
         </nav>
-        <a className="header-link" href="#newsletter">Encuentra tu amuleto <ArrowIcon /></a>
-        <details className="mobile-nav">
-          <summary aria-label="Abrir menú de navegación">
+        <a className="header-link" href="#coleccion">Encuentra tu amuleto <ArrowIcon /></a>
+        <details className="mobile-nav" ref={menuRef}>
+          <summary aria-label="Menú principal">
             <span></span><span></span>
           </summary>
-          <nav aria-label="Navegación móvil">
+          <nav aria-label="Navegación móvil" onClick={(event) => {
+            if (event.target.closest('a')) menuRef.current.open = false
+          }}>
             <a href="#coleccion">Colección</a>
             <a href="#manifiesto">Nuestra esencia</a>
             <a href="#cobre">El cobre</a>
-            <a href="#newsletter">Encuentra tu amuleto</a>
+            <a href="#contacto">Ayuda para elegir</a>
           </nav>
         </details>
       </header>
 
-      <main>
+      <main id="contenido" tabIndex="-1">
         <section className="hero" id="inicio" aria-labelledby="hero-title">
           <div className="hero-image" role="img" aria-label="Joyería artesanal en tonos cálidos sobre una superficie natural">
             <div className="hero-shade"></div>
           </div>
           <div className="hero-copy">
             <p className="eyebrow hero-eyebrow"><span></span> Hecho para estar cerca</p>
-            <h1 id="hero-title">VÍNCULO — Conexión profunda y constante con tu interior.</h1>
+            <h1 id="hero-title">Un vínculo<br />para volver a ti.</h1>
             <p className="hero-description">Accesorios de cobre diseñados como rituales diarios de amor propio.</p>
             <a className="button button-light" href="#coleccion">Explorar colección <ArrowIcon /></a>
           </div>
@@ -121,15 +191,7 @@ function App() {
             <strong>Cu</strong>
             <small>Cobre</small>
           </div>
-          <div className="hero-caption"><span>01 / 04</span><span>La calidez de lo esencial</span></div>
-        </section>
-
-        <section className="intro section-wrap" id="manifiesto">
-          <p className="eyebrow">Una pausa consciente</p>
-          <h2>Volver a ti también<br />puede ser <em>un ritual.</em></h2>
-          <p className="intro-copy">En un mundo lleno de prisa, VÍNCULO nace para acompañarte de vuelta a lo que importa. Cada pieza es un gesto tangible de amor propio, una invitación a habitar tu presente con intención.</p>
-          <a className="text-link" href="#cobre">Descubre nuestra esencia <ArrowIcon /></a>
-          <span className="intro-mark" aria-hidden="true">Cu</span>
+          <div className="hero-caption"><span>Joyería consciente</span><span>La calidez de lo esencial</span></div>
         </section>
 
         <section className="collection section-wrap" id="coleccion">
@@ -138,29 +200,27 @@ function App() {
               <p className="eyebrow">Pequeños gestos, grandes vínculos</p>
               <h2>Piezas para <em>volver a ti.</em></h2>
             </div>
-            <a className="text-link collection-link" href="#newsletter">Ver toda la colección <ArrowIcon /></a>
+            <a className="text-link collection-link" href="#contacto">Ayuda para elegir <ArrowIcon /></a>
           </div>
+          <p className="collection-description">Explora las cuatro piezas de nuestra colección. Abre sus detalles para consultar por la que más conecte contigo.</p>
           <div className="product-grid">
             {products.map((product, index) => (
-              <article className="product-card" key={product.name}>
-                <a className="product-image" href="#newsletter" aria-label={`Consultar por ${product.name}`}>
-                  <img src={product.image} alt={product.alt} loading="lazy" />
-                  <span className="product-index">0{index + 1}</span>
-                  <span className="product-meaning">{product.note}</span>
-                  <span className="product-arrow"><ArrowIcon /></span>
-                </a>
-                <div className="product-info">
-                  <div><p className="product-type">{product.type}</p><h3>{product.name}</h3></div>
-                  <span className="product-price">{product.price}</span>
-                </div>
-              </article>
+              <ProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
-          <p className="collection-note">Cada pieza está hecha a mano. Sus pequeñas variaciones la hacen única, como tú.</p>
+          <p className="collection-note">Fotografías referenciales de cada categoría. El diseño, material, precio y disponibilidad de la pieza final se confirman al consultar.</p>
+        </section>
+
+        <section className="intro section-wrap" id="manifiesto">
+          <p className="eyebrow">Una pausa consciente</p>
+          <h2>Volver a ti también<br />puede ser <em>un ritual.</em></h2>
+          <p className="intro-copy">En un mundo lleno de prisa, VÍNCULO nace para acompañarte de vuelta a lo que importa. Cada pieza es un gesto tangible de amor propio, una invitación a habitar tu presente con intención.</p>
+          <a className="text-link" href="#cobre">Descubre nuestra esencia <ArrowIcon /></a>
+          <span className="intro-mark" aria-hidden="true"></span>
         </section>
 
         <section className="copper-story" id="cobre">
-          <div className="story-image" role="img" aria-label="Detalle de una pieza de cobre artesanal junto a elementos naturales"></div>
+          <div className="story-image" role="img" aria-label="Fotografía referencial de collares en tonos cálidos"></div>
           <div className="story-copy">
             <p className="eyebrow">Un metal noble, una conexión propia</p>
             <h2>El cobre.<br /><em>Cerca de ti.</em></h2>
@@ -193,22 +253,21 @@ function App() {
           <p className="eyebrow">Un espacio para sentir</p>
           <h2>Tu historia también<br />empieza <em>por ti.</em></h2>
           <p className="community-copy">Cada vínculo es único. Muy pronto compartiremos aquí las historias reales de quienes eligen llevar VÍNCULO cerca de su piel.</p>
-          <a className="text-link" href="#newsletter">Sé parte de la comunidad <ArrowIcon /></a>
-          <div className="community-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <a className="text-link" href="#contacto">Conversemos <ArrowIcon /></a>
         </section>
 
         <section className="newsletter" id="newsletter">
           <div>
-            <p className="eyebrow">Un momento para ti</p>
+            <p className="eyebrow">Próximamente</p>
             <h2>Inspira tu <em>bandeja.</em></h2>
-            <p>Recibe reflexiones y novedades para tu bienestar. Sin prisa, solo cuando valga la pena.</p>
+            <p>Estamos preparando nuestras novedades. La suscripción todavía no está disponible y no recogemos correos desde esta página.</p>
           </div>
-          <form className="newsletter-form" onSubmit={handleSubscribe}>
-            <label className="sr-only" htmlFor="email">Tu correo electrónico</label>
-            <input id="email" type="email" name="email" placeholder="Tu correo electrónico" required autoComplete="email" />
-            <button type="submit" aria-label="Suscribirme"><ArrowIcon /></button>
-            <p className="form-message" aria-live="polite">{subscribed ? 'Gracias por tu interés. La lista se habilitará pronto.' : 'Al suscribirte, aceptas recibir novedades de VÍNCULO.'}</p>
-          </form>
+          <div className="contact-card" id="contacto">
+            <h3>Te ayudamos a elegir</h3>
+            <p>Cuéntanos qué pieza te interesa y consulta sus detalles por correo, sin compromiso.</p>
+            <a className="button button-dark" href={`mailto:${contactEmail}`}>Escríbenos <ArrowIcon /></a>
+            <p className="email-help">Se abrirá tu aplicación de correo. Si no abre, escribe a <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.</p>
+          </div>
         </section>
       </main>
 
@@ -222,9 +281,8 @@ function App() {
           <div className="footer-links">
             <a href="#coleccion">Colección</a>
             <a href="#manifiesto">Nuestra esencia</a>
-            <a href="mailto:hola@vinculo.com">Escríbenos</a>
+            <a href={`mailto:${contactEmail}`}>Escríbenos</a>
           </div>
-          <a className="social-link" href="https://www.instagram.com/" target="_blank" rel="noreferrer">Instagram <ArrowIcon /></a>
         </div>
         <div className="footer-bottom">
           <span>© 2026 VÍNCULO. Hecho con intención.</span>
